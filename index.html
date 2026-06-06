@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Compressão Estilo WhatsApp</title>
+    
+    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg">
+    
+    <style>
+        :root {
+            --primary: #25d366; /* Verde WhatsApp */
+            --primary-hover: #20ba5a;
+            --bg: #0b141a; /* Dark do WhatsApp Web */
+            --card: #111b21;
+            --border: #222e35;
+            --text-main: #e9edef;
+            --text-muted: #8696a0;
+            --input-bg: #2a3942;
+            --accent: #53bdeb;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            margin: 0 0 10px 0;
+        }
+
+        .info-section {
+            background-color: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .step-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .step-list li {
+            margin-bottom: 10px;
+        }
+
+        .grid-simulador {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-simulador { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        h2 { color: var(--accent); margin-top: 0; font-size: 1.4rem; }
+        
+        .upload-box {
+            border: 2px dashed var(--border);
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: #182229;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #182229;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-box.original { border-left: 4px solid #ef4444; }
+        .stat-box.comprimido { border-left: 4px solid var(--primary); }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 6px;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .badge-economia {
+            background-color: rgba(37, 211, 102, 0.2);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .tv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+            background-color: #182229;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .tv-table th, .tv-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tv-table th {
+            background-color: var(--border);
+            color: var(--accent);
+        }
+
+        .tv-table tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Como o WhatsApp envia fotos tão rápido?</h1>
+        <p style="color: var(--text-muted); margin: 0;">Entenda e simule o algoritmo de redução e compressão de imagens.</p>
+    </header>
+
+    <section class="info-section">
+        <h2>O Segredo dos Bastidores</h2>
+        <p>Se o WhatsApp enviasse as fotos do seu celular no tamanho original, o aplicativo gastaria toda a sua internet em poucos dias e os servidores deles entrariam em colapso. Uma foto moderna de 12MP a 48MP pesa entre <strong>4 MB e 12 MB</strong>.</p>
+        
+        <p>Para resolver isso, no momento em que você clica em "enviar", o aplicativo executa três passos em milissegundos:</p>
+        
+        <ol class="step-list" style="color: var(--text-muted);">
+            <li><strong style="color: var(--text-main);">Redimensionamento Matemático:</strong> Se a imagem for gigante (ex: 4000x3000px), ele reduz proporcionalmente para uma largura máxima de <strong>1600px</strong>.</li>
+            <li><strong style="color: var(--text-main);">Compressão Agressiva:</strong> Ele reconverte a foto para o formato JPEG aplicando uma qualidade visual de aproximadamente <strong>70%</strong>. Isso remove dados invisíveis ao olho humano em telas de celular.</li>
+            <li><strong style="color: var(--text-main);">Envio em Bloco Puro (Blob):</strong> O resultado é transmitido como um arquivo binário ultraleve (frequentemente menor que 200 KB) — uma redução de até 95% do peso original!</li>
+        </ol>
+    </section>
+
+    <div class="grid-simulador">
+        
+        <div class="card">
+            <h2>Simulador em Ação</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">Faça upload de uma foto do seu dispositivo para comparar os dados antes e depois do processo.</p>
+            
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                <span style="color: var(--primary); font-weight: bold;">📁 Selecionar Imagem</span>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-muted);">Clique para escolher um arquivo</p>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+
+            <div id="resultadosPainel" style="display: none;">
+                <div class="stats-container">
+                    <div class="stat-box original">
+                        <span style="font-size: 11px; color: var(--text-muted);">Peso Original</span>
+                        <span class="stat-value" id="pesoOriginal" style="color: #f87171;">0 KB</span>
+                    </div>
+                    <div class="stat-box comprimido">
+                        <span style="font-size: 11px; color: var(--text-muted);">Peso "Estilo Zap"</span>
+                        <span class="stat-value" id="pesoComprimido" style="color: #4ade80;">0 KB</span>
+                    </div>
+                    
+                    <div class="stat-box original">
+                        <span style="font-size: 11px; color: var(--text-muted);">Resolução Original</span>
+                        <span class="stat-value" id="resOriginal" style="color: #f87171;">0 x 0 px</span>
+                    </div>
+                    <div class="stat-box comprimido">
+                        <span style="font-size: 11px; color: var(--text-muted);">Resolução Comprimida</span>
+                        <span class="stat-value" id="resComprimida" style="color: #4ade80;">0 x 0 px</span>
+                    </div>
+                </div>
+                
+                <center>
+                    <div class="badge-economia" id="economiaInfo">Economia de 0%</div>
+                </center>
+
+                <h3 style="font-size: 14px; margin: 20px 0 5px 0;">Código Base64 Gerado (Comprimido):</h3>
+                <textarea id="base64Result" readonly onclick="this.select()"></textarea>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">💡 Clique na caixa acima para selecionar todo o texto.</p>
+            </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column;">
+            <h2 style="text-align: center;">Resultado & Referência Visual</h2>
+            <p style="color: var(--text-muted); font-size: 14px; text-align: center; margin-top: 0;" id="txtStatusVisual">Aguardando arquivo...</p>
+            
+            <div id="previewContainer" style="text-align: center;">
+                </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); width: 100%; margin: 20px 0;">
+
+            <h3 style="font-size: 14px; margin: 0 0 5px 0; color: var(--text-main);">📺 Resoluções de Referência (TVs de Mercado):</h3>
+            <p style="color: var(--text-muted); font-size: 12px; margin: 0 0 10px 0;">Compare a resolução da sua foto com as resoluções das telas do seu dia a dia:</p>
+            
+            <table class="tv-table">
+                <thead>
+                    <tr>
+                        <th>Dispositivo / Tela</th>
+                        <th>Resolução Comercial</th>
+                        <th>Pixels Totais (Largura x Altura)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>TV 32" Comum</strong></td>
+                        <td>HD / Full HD</td>
+                        <td>1366 x 768 px / 1920 x 1080 px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TV 43", 50", 60"</strong></td>
+                        <td><span style="color: #f59e0b;">4K Ultra HD</span></td>
+                        <td>3840 x 2160 px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TVs Premium de Alta Linha</strong></td>
+                        <td><span style="color: #ef4444;">8K Ultra HD</span></td>
+                        <td>7680 x 4320 px</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const arquivo = e.target.files[0];
+        if (!arquivo) return;
+
+        const tamanhoOriginalKB = (arquivo.size / 1024).toFixed(2);
+        document.getElementById('pesoOriginal').innerText = tamanhoOriginalKB + " KB";
+
+        const leitor = new FileReader();
+        
+        leitor.onload = function(evento) {
+            const imgOriginal = new Image();
+            imgOriginal.src = evento.target.result;
+
+            imgOriginal.onload = function() {
+                const larguraOriginal = imgOriginal.width;
+                const alturaOriginal = imgOriginal.height;
+                document.getElementById('resOriginal').innerText = `${larguraOriginal} x ${alturaOriginal} px`;
+
+                const MAX_RESOLUCAO = 1600; 
+                let novaLargura = larguraOriginal;
+                let novaAltura = alturaOriginal;
+
+                if (novaLargura > novaAltura) {
+                    if (novaLargura > MAX_RESOLUCAO) {
+                        novaAltura *= MAX_RESOLUCAO / novaLargura;
+                        novaLargura = MAX_RESOLUCAO;
+                    }
+                } else {
+                    if (novaAltura > MAX_RESOLUCAO) {
+                        novaLargura *= MAX_RESOLUCAO / novaAltura;
+                        novaAltura = MAX_RESOLUCAO;
+                    }
+                }
+
+                novaLargura = Math.round(novaLargura);
+                novaAltura = Math.round(novaAltura);
+
+                document.getElementById('resComprimida').innerText = `${novaLargura} x ${novaAltura} px`;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = novaLargura;
+                canvas.height = novaAltura;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgOriginal, 0, 0, novaLargura, novaAltura);
+
+                const base64Comprimido = canvas.toDataURL('image/jpeg', 0.7);
+
+                document.getElementById('base64Result').value = base64Comprimido;
+                document.getElementById('txtStatusVisual').innerText = "Visualização da foto após processamento:";
+
+                const tamanhoComprimidoKB = ((base64Comprimido.length * 0.75) / 1024).toFixed(2);
+                document.getElementById('pesoComprimido').innerText = tamanhoComprimidoKB + " KB";
+
+                const economia = (((tamanhoOriginalKB - tamanhoComprimidoKB) / tamanhoOriginalKB) * 100).toFixed(0);
+                document.getElementById('economiaInfo').innerText = `Redução de ${economia}% no tamanho do arquivo!`;
+
+                const previewContainer = document.getElementById('previewContainer');
+                previewContainer.innerHTML = '';
+                const imgFinal = new Image();
+                imgFinal.src = base64Comprimido;
+                imgFinal.className = 'preview-img';
+                previewContainer.appendChild(imgFinal);
+
+                document.getElementById('resultadosPainel').style.display = 'block';
+            };
+        };
+
+        leitor.readAsDataURL(arquivo);
+    });
+</script>
+
+</body>
+</html>
